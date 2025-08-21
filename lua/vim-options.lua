@@ -11,4 +11,4 @@ vim.opt.relativenumber = true -- shows line number relative to cursor position. 
 vim.opt.number = true -- shows absolute line number where the cursor is
 vim.opt.cursorline = true -- highlight the cursor line
 vim.wo.number = true
-
+vim.o.whichwrap = "b,s,[,],h,l"

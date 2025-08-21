@@ -39,7 +39,7 @@ return {
 
         dap.adapters.codelldb = {
           type = 'executable',
-          command = '/home/aswin/.local/share/nvim/mason/bin/codelldb',
+          command = vim.fn.stdpath("data") .. '/mason/bin/codelldb',
           name = 'codelldb'
         }
 		
@@ -64,18 +64,7 @@ return {
                 name = "Launch",
                 type = "codelldb",
                 request = "launch",
-                --program = '/mnt/c/Users/aswin/Desktop/My Projects/3D/3dRenderer/3dRenderer_nvim/src/renderer',
-				--[[program = function()
-				  local current_file_dir = vim.fn.getcwd()
-				  local exe = vim.fn.input('Path to executable: ', current_file_dir .. '/renderer', 'file')
-				  print("Program: " .. exe)
-				  return exe
-				end,
-
-				cwd = function()
-				  print("CWD: " .. vim.fn.getcwd())
-				  return vim.fn.getcwd()
-				end,--]]
+                
 				program = function()
 				  local cfg = read_debug_json()
 				  return cfg.program

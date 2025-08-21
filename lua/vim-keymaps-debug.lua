@@ -13,6 +13,40 @@ keymap.set('n', '<leader><F5>', function()
   require'dapui'.close()
   --require('neo-tree').open_all()
 end)
+
+local keymap = vim.keymap
+
+local function get_visual_selection_exact()
+  -- save/restore a scratch register (z)
+  local save, savetype = vim.fn.getreg('z'), vim.fn.getregtype('z')
+  vim.cmd([[silent noautocmd normal! "zy]])   -- yank current visual selection to register z
+  local text = vim.fn.getreg('z')
+  vim.fn.setreg('z', save, savetype)          -- restore register z
+  return text
+end
+
+keymap.set('v', '<leader>dw', function()
+  local expr = get_visual_selection_exact()
+    :gsub("^%s+", "")
+    :gsub("%s+$", "")
+    :gsub("\n+", " ")
+
+  if expr ~= "" then
+    local ok, err = pcall(function()
+      require('dapui').elements.watches.add(expr)
+    end)
+    if not ok then
+      vim.notify("Failed to add watch: " .. tostring(err), vim.log.levels.WARN)
+    end
+  else
+    vim.notify("No valid selection to watch", vim.log.levels.INFO)
+  end
+
+  -- Exit visual mode
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+end, { desc = "DAP UI: add watch from visual selection", silent = true })
+
+
 keymap.set('n', '<leader>dw', function() require('dapui').elements.watches.add(vim.fn.expand('<cword>')) end)
 keymap.set('n', '<leader>ds', function() require("dapui").float_element("stacks", {width=70,height=20,enter=true}) end)
 keymap.set('n', '<leader>db', function() require("dapui").float_element("breakpoints", {width=70,height=20,enter=true}) end)

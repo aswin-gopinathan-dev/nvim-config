@@ -41,9 +41,68 @@ return {
 
 	lspconfig.clangd.setup(
 		{
-		cmd={"clangd", "--background-index", "--compile-commands-dir=.",},
+		cmd={"clangd", "--background-index", "--compile-commands-dir=.", 
+						"--function-arg-placeholders=0","--pch-storage=memory", },
         capabilities = capabilities
       	})
+	
 
-    end,
+	-- do error check after a small pause after typing in insert mode
+	local IDLE_MS = 750
+
+	local orig = vim.lsp.handlers["textDocument/publishDiagnostics"]
+	local pending, timers = {}, {}
+
+	vim.lsp.handlers["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
+	  if not result or not result.uri then
+		return orig(err, result, ctx, config)
+	  end
+
+	  local bufnr = vim.uri_to_bufnr(result.uri)
+
+	  -- If we're in insert mode, debounce; otherwise forward immediately
+	  if vim.fn.mode() == "i" then
+		pending[bufnr] = { err = err, result = result, ctx = ctx, config = config }
+
+		if timers[bufnr] then
+		  timers[bufnr]:stop(); timers[bufnr]:close()
+		end
+
+		local t = vim.loop.new_timer()
+		timers[bufnr] = t
+		t:start(IDLE_MS, 0, function()
+		  vim.schedule(function()
+			local p = pending[bufnr]
+			if p then
+			  orig(p.err, p.result, p.ctx, p.config)
+			  pending[bufnr] = nil
+			end
+		  end)
+		end)
+	  else
+		-- Not in insert mode: show right away
+		if timers[bufnr] then timers[bufnr]:stop(); timers[bufnr]:close(); timers[bufnr] = nil end
+		pending[bufnr] = nil
+		return orig(err, result, ctx, config)
+	  end
+	end
+
+	vim.diagnostic.config({
+	  update_in_insert = true,   -- show diagnostics in insert mode
+	})	
+	
+		
+
+	local ok, cmp = pcall(require, "cmp")
+	if ok then
+	  cmp.setup({
+		window = {
+		  documentation = cmp.config.disable,  -- hide docs popup in completion menu
+		},
+	  })
+	end
+
+    end
+	
+	
 }

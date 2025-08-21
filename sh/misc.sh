@@ -1,4 +1,6 @@
-#! /bin/fish
+#!/bin/bash
+echo "Generating dependent project files..."
+
 
 # Generate clangd file
 # --------------------
@@ -23,20 +25,3 @@ echo "{
   \"cwd\": \"$PWD\"
 }" > debug.json
 
-
-# Create source code
-# ------------------
-mkdir -p src
-mkdir -p inc
-
-echo "#include <iostream>
-
-
-int main()
-{
-    std::cout<<\"Hello World\";
-    return 0;
-}
-" > src/main.cpp
-
-./build_script.sh

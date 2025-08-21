@@ -14,13 +14,16 @@ end
 
 -- Build, Display Errors, Traverse error list and jump to error in the code
 -- Run make inside ToggleTerm AND capture output into Quickfix
-keymap.set({"n", "t"}, "<F7>", function()
+keymap.set({"n", "i", "t"}, "<F7>", function()
+  if vim.bo.buftype ~= "terminal" then
+    vim.cmd("w")
+  end
   local config = read_debug_json()
   local dir = config.cwd or vim.fn.getcwd()
 
   -- Run make and redirect output to a temp file
   local output_file = "/tmp/make_output.txt"
-  local make_cmd = string.format("cd '%s' && make 2>&1 | tee %s\n", dir, output_file)
+  local make_cmd = string.format("cd '%s' && make compile 2>&1 | tee %s", dir, output_file)
 
   local Terminal = require("toggleterm.terminal").Terminal
   local term = Terminal:new({

@@ -23,12 +23,13 @@ return {
             -- list of servers for mason to install
             ensure_installed = {
                 --"clangd",         -- cpp
-		--"codelldb", 
+		        --"codelldb", 
                 "biome",          -- json
                 "lua_ls",         -- lua
                 "pyright",        -- python
                 "rust_analyzer",  -- rust
             },
+            --automatic_installation = true,
         })
     end,
 }

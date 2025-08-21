@@ -4,11 +4,12 @@ return {
         local auto_session = require("auto-session")
 
         auto_session.setup({
-			--enabled = true,
-			--auto_save = true,
-			-- auto_restore = true,
-            auto_restore_enabled = false,
-            auto_session_suppress_dirs = { "~/", "~/Dev/", "~/Downloads", "~/Documents" },
+			auto_session_enabled        = true,
+			auto_save_enabled           = true,
+			auto_restore_enabled        = true,
+			bypass_session_save_file_types = { "alpha", "dashboard" },
+			pre_save_cmds = { "Neotree close" },
+			post_restore_cmds = { "Neotree show" },
         })
 
     end,
